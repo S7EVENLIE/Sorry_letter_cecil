@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Untuk 黄裙芳</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background:
+                radial-gradient(circle at 50% 42%, rgba(255,255,255,.35), transparent 30%),
+                linear-gradient(135deg, #ff9a9e 0%, #fecfef 55%, #e8d9ff 100%);
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Background hearts: hidden until the letter is opened */
+        .heart-bg {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 1.2s ease, visibility 0s linear 1.2s;
+        }
+
+        body.hearts-visible .heart-bg {
+            opacity: 1;
+            visibility: visible;
+            transition: opacity 1.2s ease;
+        }
+
+        .heart-shape {
+            position: absolute;
+            bottom: -25px;
+            width: 20px;
+            height: 20px;
+            background-color: rgba(255, 255, 255, .58);
+            transform: rotate(-45deg);
+            animation: floatUp 5s infinite ease-in;
+            filter: drop-shadow(0 0 5px rgba(255,255,255,.35));
+        }
+
+        .heart-shape::before,
+        .heart-shape::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: rgba(255, 255, 255, .58);
+            border-radius: 50%;
+        }
+
+        .heart-shape::before {
+            top: -10px;
+            left: 0;
+        }
+
+        .heart-shape::after {
+            top: 0;
+            left: 10px;
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(0) rotate(-45deg) scale(.8);
+                opacity: 0;
+            }
+            12% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) rotate(-45deg) scale(1.2);
+                opacity: 0;
+            }
+        }
+
+        /* Main envelope */
+        .envelope-wrapper {
+            position: relative;
+            z-index: 10;
+            cursor: pointer;
+            transition: transform .35s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .envelope-wrapper:hover {
+            transform: scale(1.035);
+        }
+
+        .fancy-text {
+            position: absolute;
+            top: -70px;
+            width: 100%;
+            text-align: center;
+            font-family: 'Dancing Script', cursive;
+            font-size: 2.8rem;
+            color: #d63031;
+            text-shadow: 1px 1px 3px rgba(255,255,255,.85);
+            z-index: 15;
+            transition: opacity .5s ease;
+            white-space: nowrap;
+        }
+
+        .envelope {
+            position: relative;
+            width: 550px;
+            height: 315px; 
+            background-color: #f0f0f0;
+            box-shadow: 0 14px 30px rgba(80, 25, 55, .22);
+            border-radius: 7px;
+            perspective: 800px;
+        }
+
+        .flap {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 0;
+            border-left: 275px solid transparent;
+            border-right: 275px solid transparent;
+            border-top: 160px solid #e0e0e0; 
+            transform-origin: top;
+            transition: transform .65s .12s, z-index .2s;
+            z-index: 4;
+        }
+
+        .pocket {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 0;
+            border-left: 275px solid #f9f9f9;
+            border-right: 275px solid #f9f9f9;
+            border-bottom: 160px solid #ffffff;
+            border-top: 160px solid transparent;
+            z-index: 3;
+            border-bottom-left-radius: 7px;
+            border-bottom-right-radius: 7px;
+        }
+
+        .letter {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 530px; 
+            max-width: min(88vw, 530px);
+            min-height: 220px;
+            background: linear-gradient(145deg, #fffdf9, #fff8f1);
+            border-radius: 7px;
+            box-shadow: 0 8px 25px rgba(70, 25, 45, .16);
+            transition: transform .85s cubic-bezier(.2,.75,.2,1) .25s,
+                        box-shadow .6s ease;
+            z-index: 2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 30px 25px;
+            text-align: center;
+            overflow: visible;
+        }
+
+        .letter p {
+            font-family: 'Ma Shan Zheng', cursive;
+            font-size: 1.6rem;
+            color: #d63031;
+            margin: 0;
+            line-height: 1.6;
+            white-space: nowrap;
+        }
+
+        .envelope-wrapper.open .flap {
+            transform: rotateX(180deg);
+            z-index: 1;
+        }
+
+        .envelope-wrapper.open .letter {
+            transform: translate(-50%, -180px);
+            z-index: 3;
+            box-shadow: 0 12px 35px rgba(70, 25, 45, .2);
+        }
+
+        .envelope-wrapper.open .fancy-text {
+            opacity: 0;
+        }
+
+        /* Heart burst */
+        .heart-burst {
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            width: 0;
+            height: 0;
+            z-index: 30;
+            pointer-events: none;
+        }
+
+        .burst-heart {
+            position: absolute;
+            left: -9px;
+            top: -9px;
+            width: 18px;
+            height: 18px;
+            background: #fff;
+            transform: rotate(-45deg) scale(.25);
+            opacity: 0;
+            filter: drop-shadow(0 0 5px rgba(255,255,255,.7));
+        }
+
+        .burst-heart::before,
+        .burst-heart::after {
+            content: '';
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            background: inherit;
+            border-radius: 50%;
+        }
+
+        .burst-heart::before {
+            top: -9px;
+            left: 0;
+        }
+
+        .burst-heart::after {
+            top: 0;
+            left: 9px;
+        }
+
+        .burst-heart.animate {
+            animation: heartBurst 1.05s cubic-bezier(.15,.7,.25,1) forwards;
+        }
+
+        @keyframes heartBurst {
+            0% {
+                transform: rotate(-45deg) translate(0,0) scale(.2);
+                opacity: 0;
+            }
+            12% {
+                opacity: 1;
+            }
+            100% {
+                transform: rotate(-45deg) translate(var(--x), var(--y)) scale(var(--scale));
+                opacity: 0;
+            }
+        }
+
+        @media (max-width: 700px) {
+            .fancy-text {
+                font-size: 2.2rem;
+                top: -60px;
+            }
+
+            .envelope {
+                width: min(92vw, 550px);
+                height: calc(min(92vw, 550px) * 0.57);
+            }
+
+            .flap {
+                border-left-width: calc(min(92vw, 550px) / 2);
+                border-right-width: calc(min(92vw, 550px) / 2);
+                border-top-width: calc(min(92vw, 550px) * 0.29);
+            }
+
+            .pocket {
+                border-left-width: calc(min(92vw, 550px) / 2);
+                border-right-width: calc(min(92vw, 550px) / 2);
+                border-bottom-width: calc(min(92vw, 550px) * 0.29);
+                border-top-width: calc(min(92vw, 550px) * 0.29);
+            }
+
+            .letter {
+                width: min(92vw, 530px);
+                max-width: 92vw;
+                min-height: 180px;
+                padding: 22px 10px;
+            }
+
+            .letter p {
+                font-size: clamp(1.05rem, 4vw, 1.6rem);
+                line-height: 1.55;
+            }
+
+            .envelope-wrapper.open .letter {
+                transform: translate(-50%, -160px);
+            }
+        }
+
+        @media (max-width: 400px) {
+            .letter {
+                width: 96vw;
+                max-width: 96vw;
+                padding-left: 4px;
+                padding-right: 4px;
+            }
+
+            .letter p {
+                font-size: clamp(0.95rem, 3.8vw, 1.2rem);
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .heart-shape,
+            .burst-heart {
+                animation-duration: .01ms !important;
+                animation-iteration-count: 1 !important;
+            }
+
+            .heart-bg,
+            .envelope-wrapper,
+            .letter,
+            .flap {
+                transition-duration: .01ms !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="heart-bg" id="hearts"></div>
+
+    <div class="envelope-wrapper" id="envelope" onclick="toggleLetter(this)">
+        <div class="fancy-text">untuk 黄裙芳</div>
+
+        <div class="envelope">
+            <div class="flap"></div>
+            <div class="pocket"></div>
+
+            <div class="letter">
+                <p>对不起，黄裙芳，可以再给我一次机会吗？<br>我真的不想让你恨我。</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="heart-burst" id="heartBurst"></div>
+
+    <script>
+        const heartsContainer = document.getElementById('hearts');
+        const envelope = document.getElementById('envelope');
+        const heartBurst = document.getElementById('heartBurst');
+
+        for (let i = 0; i < 20; i++) {
+            const heart = document.createElement('div');
+            heart.classList.add('heart-shape');
+
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.animationDuration = (Math.random() * 3 + 3) + 's';
+            heart.style.animationDelay = Math.random() * 2 + 's';
+
+            heartsContainer.appendChild(heart);
+        }
+
+        function createHeartBurst() {
+            heartBurst.innerHTML = '';
+            const count = 18;
+
+            for (let i = 0; i < count; i++) {
+                const heart = document.createElement('div');
+                heart.classList.add('burst-heart');
+
+                const angle = (Math.PI * 2 * i / count) + (Math.random() - .5) * .25;
+                const distance = 75 + Math.random() * 115;
+
+                heart.style.setProperty('--x', Math.cos(angle) * distance + 'px');
+                heart.style.setProperty('--y', Math.sin(angle) * distance + 'px');
+                heart.style.setProperty('--scale', (.65 + Math.random() * .55).toFixed(2));
+
+                const colors = ['#ffffff', '#ffe6f0', '#ffd1df', '#fff1f6'];
+                heart.style.background = colors[Math.floor(Math.random() * colors.length)];
+
+                heart.style.animationDelay = (Math.random() * .12) + 's';
+                heartBurst.appendChild(heart);
+            }
+
+            requestAnimationFrame(() => {
+                document.querySelectorAll('.burst-heart').forEach(h => {
+                    h.classList.add('animate');
+                });
+            });
+
+            setTimeout(() => {
+                heartBurst.innerHTML = '';
+            }, 1300);
+        }
+
+        function toggleLetter(element) {
+            const isOpening = !element.classList.contains('open');
+
+            element.classList.toggle('open');
+
+            if (isOpening) {
+                document.body.classList.add('hearts-visible');
+                createHeartBurst();
+            } else {
+                document.body.classList.remove('hearts-visible');
+                heartBurst.innerHTML = '';
+            }
+        }
+    </script>
+</body>
+</html>
